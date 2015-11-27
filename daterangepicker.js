@@ -95,6 +95,13 @@
         //data-api options will be overwritten with custom javascript options
         options = $.extend(this.element.data(), options);
 
+        if(!this.element.is('input') && !options.singleDatePicker){
+            this.doubleInput = true;
+            this.startDateInput = this.element.find('input:first');
+            this.endDateInput = this.element.find('input:last');
+        }
+        this.preShow = options.preShow || $.noop;
+
         //html template for the picker UI
         if (typeof options.template !== 'string')
             options.template = '<div class="daterangepicker dropdown-menu">' +
@@ -105,6 +112,8 @@
                       '<div class="calendar-time">' +
                         '<div></div>' +
                         '<i class="fa fa-clock-o glyphicon glyphicon-time"></i>' +
+                        '<i class="glyphicon glyphicon-arrow-up"></i>' +
+                        '<i class="glyphicon glyphicon-arrow-down"></i>' +
                       '</div>' +
                     '</div>' +
                     '<div class="calendar-table"></div>' +
@@ -116,6 +125,8 @@
                       '<div class="calendar-time">' +
                         '<div></div>' +
                         '<i class="fa fa-clock-o glyphicon glyphicon-time"></i>' +
+                        '<i class="glyphicon glyphicon-arrow-up"></i>' +
+                        '<i class="glyphicon glyphicon-arrow-down"></i>' +
                       '</div>' +
                     '</div>' +
                     '<div class="calendar-table"></div>' +
@@ -135,6 +146,9 @@
         // handle all the possible options overriding defaults
         //
 
+        if(typeof options.locale == 'string'){
+            options.locale = $.fn.daterangepicker.locales[options.locale];
+        }
         if (typeof options.locale === 'object') {
 
             if (typeof options.locale.format === 'string')
@@ -403,7 +417,9 @@
             .on('change.daterangepicker', 'select.hourselect,select.minuteselect,select.secondselect,select.ampmselect', $.proxy(this.timeChanged, this))
             .on('click.daterangepicker', '.daterangepicker_input input', $.proxy(this.showCalendars, this))
             //.on('keyup.daterangepicker', '.daterangepicker_input input', $.proxy(this.formInputsChanged, this))
-            .on('change.daterangepicker', '.daterangepicker_input input', $.proxy(this.formInputsChanged, this));
+            .on('change.daterangepicker', '.daterangepicker_input input', $.proxy(this.formInputsChanged, this))
+            .on('click.daterangepicker', '.glyphicon-arrow-up', $.proxy(this.clickStartTime, this))
+            .on('click.daterangepicker', '.glyphicon-arrow-down', $.proxy(this.clickEndTime, this));
 
         this.container.find('.ranges')
             .on('click.daterangepicker', 'button.applyBtn', $.proxy(this.clickApply, this))
@@ -427,6 +443,10 @@
         // if attached to a text input, set the initial value
         //
 
+        if(this.doubleInput && this.autoUpdateInput){
+            this.startDateInput.val(this.startDate.format(this.locale.format));
+            this.endDateInput.val(this.endDate.format(this.locale.format));
+        }else
         if (this.element.is('input') && !this.singleDatePicker && this.autoUpdateInput) {
             this.element.val(this.startDate.format(this.locale.format) + this.locale.separator + this.endDate.format(this.locale.format));
             this.element.trigger('change');
@@ -1042,6 +1062,11 @@
         },
 
         show: function(e) {
+            if (this.preShow !== $.noop){
+                if(!this.preShow()){
+                    return;
+                }
+            }
             if (this.isShowing) return;
 
             // Create a click proxy that is private to this instance of datepicker, for unbinding
@@ -1463,6 +1488,10 @@
         },
 
         updateElement: function() {
+            if(this.doubleInput && this.autoUpdateInput){
+                this.startDateInput.val(this.startDate.format(this.locale.format));
+                this.endDateInput.val(this.endDate.format(this.locale.format));
+            }else
             if (this.element.is('input') && !this.singleDatePicker && this.autoUpdateInput) {
                 this.element.val(this.startDate.format(this.locale.format) + this.locale.separator + this.endDate.format(this.locale.format));
                 this.element.trigger('change');
@@ -1476,8 +1505,43 @@
             this.container.remove();
             this.element.off('.daterangepicker');
             this.element.removeData();
-        }
+        },
 
+        clickStartTime: function(e) {
+            var cal = $(e.target).parents('.calendar');
+            if (cal.hasClass('left')) {
+                var d = this.startDate.clone();
+                d.hour(0);
+                d.minute(0);
+                d.second(0);
+                this.setStartDate(d);
+            } else {
+                var d = this.endDate.clone();
+                d.hour(0);
+                d.minute(0);
+                d.second(0);
+                this.setEndDate(d);
+            }
+            this.updateView();
+        },
+
+        clickEndTime: function(e) {
+            var cal = $(e.target).parents('.calendar');
+            if (cal.hasClass('left')) {
+                var d = this.startDate.clone();
+                d.hour(23);
+                d.minute(59);
+                d.second(59);
+                this.setStartDate(d);
+            } else {
+                var d = this.endDate.clone();
+                d.hour(23);
+                d.minute(59);
+                d.second(59);
+                this.setEndDate(d);
+            }
+            this.updateView();
+        }
     };
 
     $.fn.daterangepicker = function(options, callback) {
@@ -1489,5 +1553,6 @@
         });
         return this;
     };
+    $.fn.daterangepicker.locales = {};
 
 }));

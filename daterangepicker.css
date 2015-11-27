@@ -373,3 +373,52 @@
     clear: none;
   }
 }
+
+
+.input-group.date .input-group-addon {
+    cursor: pointer;
+}
+.input-daterange {
+    width: 100%;
+}
+.input-daterange input {
+    text-align: center;
+}
+.input-daterange input:first-child {
+    border-radius: 3px 0 0 3px;
+}
+.input-daterange input:last-child {
+    border-radius: 0 3px 3px 0;
+}
+.input-daterange .input-group-addon {
+    width: auto;
+    min-width: 16px;
+    padding: 4px 5px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    text-shadow: 0 1px 0 #fff;
+    vertical-align: middle;
+    background-color: #eeeeee;
+    border: solid #cccccc;
+    border-width: 1px 0;
+    margin-left: -5px;
+    margin-right: -5px;
+}
+
+.range_inputs .btn{
+    display:block!important;
+    margin-bottom:2px;
+}
+
+.daterangepicker .daterangepicker_input .glyphicon-arrow-up, .daterangepicker .daterangepicker_input .glyphicon-arrow-down{
+    left:auto;
+    right:0px;
+    cursor:pointer;
+}
+.daterangepicker .daterangepicker_input .glyphicon-arrow-up:hover, .daterangepicker .daterangepicker_input .glyphicon-arrow-down:hover{
+    color:#357ebd;
+}
+.daterangepicker .daterangepicker_input .glyphicon-arrow-up{
+    right:14px;
+}
